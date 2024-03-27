@@ -2,6 +2,7 @@ import json
 import os
 from datetime import datetime
 
+
 notes = []
 
 def load_notes():
@@ -91,14 +92,27 @@ def delete_note():
 
 def display_notes():
     if not notes:
-        print("Список заметок пуст")
+        print("Список заметок пуст.")
     else:
-        for note in notes:
-            print(f"ID: {note['id']}")
-            print(f"Заголовок: {note['title']}")
-            print(f"Текст заметки: {note['text']}")
-            print(f"Дата/время: {note['timestamp']}")
-            print()
+        while True:
+            filter_date_str = input("Введите дату для фильтрации (ДД-ММ-ГГГГ): ")
+            try:
+                filter_date = datetime.strptime(filter_date_str, "%d-%m-%Y").date()
+                break  # Правильный формат даты введен, выходим из цикла
+            except ValueError:
+                print("Некорректный формат даты. Пожалуйста, введите дату в формате ДД-ММ-ГГГГ.")
+
+        filtered_notes = [note for note in notes if datetime.strptime(note['timestamp'], "%Y-%m-%d %H:%M:%S").date() == filter_date]
+
+        if filtered_notes:
+            for note in filtered_notes:
+                print(f"ID: {note['id']}")
+                print(f"Заголовок: {note['title']}")
+                print(f"Текст заметки: {note['text']}")
+                print(f"Дата/время: {note['timestamp']}")
+                print()
+        else:
+            print("Нет заметок для указанной даты.")
 
 def main():
     load_notes()
