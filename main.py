@@ -6,13 +6,28 @@ notes = []
 
 def load_notes():
     global notes
-    if os.path.exists('notes.json'):
-        with open('notes.json', 'r') as file:
-            notes = json.load(file)
+    file_path = os.path.join('notes', 'notes.json')
+    if os.path.exists('notes/notes.json') and os.path.getsize('notes/notes.json') > 0:
+        with open('notes/notes.json', 'r') as file:
+            notes_data = json.load(file)
+            if isinstance(notes_data, list):
+                notes = notes_data
+            else:
+                print("Файл содержит некорректные данные. Создан новый список заметок.")
+                notes = []
+    else:
+        print("Файл с заметками пуст или не существует. Создан новый список заметок.")
 
 def save_notes():
-    with open('notes.json', 'w') as file:
-        json.dump(notes, file, indent=4)
+    root_path = os.path.dirname(os.path.abspath(__file__))
+    notes_path = os.path.join(root_path, 'notes/notes.json')
+    if 'notes' in globals() and isinstance(notes, list):
+        with open(notes_path, 'w') as file:
+            json.dump(notes, file, indent=4)
+        print("Заметки успешно сохранены в файл notes.json в папке notes")
+    else:
+        print("Не удалось сохранить заметки. Переменная 'notes' не найдена или содержит некорректные данные.")
+        
 
 def add_note():
     title = input("Введите заголовок заметки: ")
@@ -34,7 +49,13 @@ def edit_note():
         print("Список заметок пуст. Нечего редактировать.")
         return
 
-    note_id = int(input("Введите ID заметки для редактирования: "))
+    
+    note_id = input("Введите ID заметки для редактирования: ")
+    if not note_id.isdigit():
+        print("Пожалуйста, введите числовое значение для ID заметки.")
+    else:
+        note_id = int(note_id)        
+
     for note in notes:
         if note['id'] == note_id:
             new_title = input("Введите новый заголовок заметки: ")
@@ -52,7 +73,14 @@ def delete_note():
         print("Список заметок пуст. Нечего удалять.")
         return
 
-    note_id = int(input("Введите ID заметки для удаления: "))
+    while True:
+        note_id = input("Введите ID заметки для удаления: ")
+        if not note_id.isdigit():
+            print("Пожалуйста, введите числовое значение для ID заметки.")
+        else:
+            note_id = int(note_id)
+            break
+
     for note in notes:
         if note['id'] == note_id:
             notes.remove(note)
